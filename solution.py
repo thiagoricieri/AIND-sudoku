@@ -5,8 +5,6 @@ def assign_value(values, box, value):
     Please use this function to update your values dictionary!
     Assigns a value to a given box. If it updates the board record it.
     """
-
-    # Don't waste memory appending actions that don't actually change any values
     if values[box] == value:
         return values
 
@@ -40,7 +38,8 @@ def grid_values(grid):
     Input: A grid in string form.
     Output: A grid in dictionary form
             Keys: The boxes, e.g., 'A1'
-            Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
+            Values: The value in each box, e.g., '8'. If the box has 
+            no value, then the value will be '123456789'.
     """
     chars = []
     digits = '123456789'
@@ -68,7 +67,8 @@ def display(values):
 
 def eliminate(values):
     """
-    Go through all the boxes, and whenever there is a box with a value, eliminate this value from the values of all its peers.
+    Go through all the boxes, and whenever there is a box with a value, 
+    eliminate this value from the values of all its peers.
     Input: A sudoku in dictionary form.
     Output: The resulting sudoku in dictionary form.
     """
@@ -76,12 +76,14 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            values[peer] = values[peer].replace(digit,'')
+            digit = values[peer].replace(digit,'')
+            values = assign_value(values, peer, digit)
     return values
 
 def only_choice(values):
     """
-    Go through all the units, and whenever there is a unit with a value that only fits in one box, assign the value to this box.
+    Go through all the units, and whenever there is a unit with a value that only 
+    fits in one box, assign the value to this box.
     Input: A sudoku in dictionary form.
     Output: The resulting sudoku in dictionary form.
     """
@@ -89,14 +91,17 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                values[dplaces[0]] = digit
+                values = assign_value(values, dplaces[0], digit)
     return values
 
 def reduce_puzzle(values):
     """
-    Iterate eliminate() and only_choice(). If at some point, there is a box with no available values, return False.
+    Iterate eliminate() and only_choice(). If at some point, 
+    there is a box with no available values, return False.
     If the sudoku is solved, return the sudoku.
-    If after an iteration of both functions, the sudoku remains the same, return the sudoku.
+    If after an iteration of both functions, 
+    the sudoku remains the same, return the sudoku.
+    
     Input: A sudoku in dictionary form.
     Output: The resulting sudoku in dictionary form.
     """
@@ -114,7 +119,9 @@ def reduce_puzzle(values):
     return values
 
 def search(values):
-    "Using depth-first search and propagation, try all possible values."
+    """
+    Using depth-first search and propagation, try all possible values.
+    """
     # First, reduce the puzzle using the previous function
     values = reduce_puzzle(values)
     if values is False:
@@ -151,11 +158,19 @@ if __name__ == '__main__':
     row_units = [cross(r, cols) for r in rows]
     column_units = [cross(rows, c) for c in cols]
     square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
-    unitlist = row_units + column_units + square_units
+    
+    # Add diagonal units
+    diagonal1 = [rows[x]+cols[x] for x in range(9)]
+    diagonal2 = [rows[x]+cols[8-x] for x in range(9)]
+    diagonal_units = [diagonal1] + [diagonal2]
+    
+    unitlist = row_units + column_units + square_units + diagonal_units
     units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
     peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
     
-    display(solve(diag_sudoku_grid))
+    solution = solve(diag_sudoku_grid)
+    if solution:
+        display(solution)
 
     try:
         from visualize import visualize_assignments
