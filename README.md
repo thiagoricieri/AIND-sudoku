@@ -3,11 +3,11 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+A: In the `search()` method, it will call `eliminate()` -> `only_choice()` -> `naked_twins()` -> recursively.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+A: I added the diagonal peers to the unitlist array.
 
 ### Install
 
