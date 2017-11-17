@@ -13,21 +13,6 @@ def assign_value(values, box, value):
         assignments.append(values.copy())
     return values
 
-def naked_twins(values):
-    """Eliminate values using the naked twins strategy.
-    Args:
-        values(dict): a dictionary of the form {'box_name': '123456789', ...}
-
-    Returns:
-        the values dictionary with the naked twins eliminated from peers.
-    """
-
-    # Find all instances of naked twins
-
-    # Eliminate the naked twins as possibilities for their peers
-
-    return values
-
 def cross(a, b):
     "Cross product of elements in A and elements in B."
     return [s+t for s in a for t in b]
@@ -94,6 +79,33 @@ def only_choice(values):
                 values = assign_value(values, dplaces[0], digit)
     return values
 
+def naked_twins(values):
+    """Eliminate values using the naked twins strategy.
+    Args:
+        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+
+    Returns:
+        the values dictionary with the naked twins eliminated from peers.
+    """
+
+    # Find all instances of naked twins
+    unsolved_values = [box for box in values.keys() if len(values[box]) > 1]
+    for box in unsolved_values:
+        digit = values[box]
+        nontwins = [p for p in peers[box] if values[p] != digit and len(values[p]) > len(digit)]
+        # Eliminate the naked twins as possibilities for their peers
+        lastnontwin = ""
+        for n in nontwins:
+            thisnontwin = values[n]
+            if lastnontwin != thisnontwin:
+                for c in cols:
+                    if digit.find(c) > -1:
+                        thisnontwin = thisnontwin.replace(c, '')
+                values = assign_value(values, n, thisnontwin)
+                lastnontwin = thisnontwin
+
+    return values
+
 def reduce_puzzle(values):
     """
     Iterate eliminate() and only_choice(). If at some point, 
@@ -124,16 +136,17 @@ def search(values):
     """
     # First, reduce the puzzle using the previous function
     values = reduce_puzzle(values)
+
     if values is False:
         return False ## Failed earlier
     if all(len(values[s]) == 1 for s in boxes): 
         return values ## Solved!
+
     # Choose one of the unfilled squares with the fewest possibilities
     n,s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
     # Now use recurrence to solve each one of the resulting sudokus, and 
     for value in values[s]:
-        new_sudoku = values.copy()
-        new_sudoku[s] = value
+        new_sudoku = assign_value(values.copy(), s, value)
         attempt = search(new_sudoku)
         if attempt:
             return attempt
@@ -171,6 +184,8 @@ if __name__ == '__main__':
     solution = solve(diag_sudoku_grid)
     if solution:
         display(solution)
+    else:
+        print("It has no solution")
 
     try:
         from visualize import visualize_assignments
