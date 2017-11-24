@@ -7,7 +7,7 @@ A: In the `search()` method, it will call `eliminate()` -> `only_choice()` -> `n
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: I added the diagonal peers to the unitlist array.
+A: I added the diagonal peers to the unitlist array. Since the algorithm is already prepared to handle units, by simply adding the new units in the same format makes it effortless to support diagonal sudoku.
 
 ### Install
 
